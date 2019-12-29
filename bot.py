@@ -40,7 +40,8 @@ async def on_message(message):
             previous_messages.append(message.content)
 
         if title in ''.join([str(messages) for messages in previous_messages ]):
-            await channel.send(f"<@{str(author_id)}> There is no free games today :(")
+            already_posted_message = await channel.send(f"<@{str(author_id)}> The game posted above is already the latest free game.")
+            await already_posted_message.delete(delay=10)
         else:
             inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
             await inital_message.delete(delay=2)
