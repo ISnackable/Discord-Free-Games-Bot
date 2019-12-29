@@ -1,4 +1,5 @@
 import os
+import re
 import discord
 from dotenv import load_dotenv
 import praw
@@ -68,5 +69,15 @@ async def my_background_task():
 
             await asyncio.sleep(43200) # task runs every 43200 seconds / 12 hours
 
-if __name__ == "__main__":
-    client.run(token)
+# if __name__ == "__main__":
+#     client.run(token)
+
+# for submission in reddit.subreddit('Freegamestuff').hot(limit=5):
+#     if 'free' in submission.title.lower():
+#         url = re.findall('^((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?', submission.selftext)
+#         print(url)
+#         break
+
+# # embed = discord.Embed(title='Go to YouTube',
+# #                        url='https://www.youtube.com/',
+# #                        description='New video guys click on the title')
