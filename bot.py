@@ -26,11 +26,11 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    channel = client.get_channel(431676381659791371)
+    channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
     if message.author == client.user:
         return
     
-    if message.content == '>>latest':
+    if message.content == '>>latest': # command to retrieve latest free game
         title, url = retrieve_subreddit()
         previous_messages = []
         author_id = message.author.id
@@ -44,7 +44,7 @@ async def on_message(message):
         else:
             inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
             await inital_message.delete(delay=2)
-            await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(url))
+            await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(url)) # Change <@&431674916455055361> to whatever role's id you want
         
 
 def retrieve_subreddit(): 
@@ -53,7 +53,7 @@ def retrieve_subreddit():
             return submission.title, submission.shortlink
 
 async def my_background_task():
-        channel = client.get_channel(431676381659791371)
+        channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
         while True:
             title, url = retrieve_subreddit()
             previous_messages = []
@@ -63,7 +63,7 @@ async def my_background_task():
             if title in ''.join([str(messages) for messages in previous_messages ]):
                 pass
             else:
-                await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(url))
+                await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(url)) # Change <@&431674916455055361> to whatever role's id you want
 
             await asyncio.sleep(43200) # task runs every 43200 seconds / 12 hours
 
