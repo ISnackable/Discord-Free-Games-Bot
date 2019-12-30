@@ -18,7 +18,11 @@ reddit = praw.Reddit(client_id=client_id,
 
 def process_link(link):
     url = re.search(r'(http|ftp|https)://([\w-]+(?:(?:.[\w-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', link)
-    return url.group(0)
+    
+    if url is not None:
+        return url.group(0)
+    else:
+        return ""
 
 
 def process_title(title):
@@ -42,8 +46,8 @@ async def check_history(title, link):
     async for message in channel.history(limit=5, oldest_first=False):
             previous_messages.append(message.content)
     for messages in previous_messages:
-        if title in messages or link in messages:
-            print("Already posted")
+        if link in messages:
+            # print("Already posted")
             return True
         else:
             # embed=discord.Embed(title=title, url=link, description='Price:FREE (100% OFF) <:Steam:661129090191065120>')
@@ -51,7 +55,7 @@ async def check_history(title, link):
             # await channel.send(embed=embed)
             inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
             await inital_message.delete(delay=2)
-            await channel.send('<@98797564966506496> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
+            await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
             return False
 
 
@@ -98,7 +102,7 @@ async def my_background_task():
             game_title, game_link = retrieve_subreddit()
             await check_history(game_title, game_link)
 
-            await asyncio.sleep(1800) # task runs every 1800 seconds / 30 minutes
+            await asyncio.sleep(60) # task runs every 60 seconds
 
 if __name__ == "__main__":
     client.run(token)
