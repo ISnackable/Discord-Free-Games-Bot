@@ -35,6 +35,7 @@ def retrieve_subreddit():
             game_link = process_link(submission.url)
     return game_title, game_link
 
+
 async def check_history(title, link):
     channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
     previous_messages = []

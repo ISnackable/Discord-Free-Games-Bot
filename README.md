@@ -12,7 +12,7 @@ The following tools should be installed before starting:
 ## How to setup this project
 
 1. Make sure you have all of the dependencies installed
-2. Clone this repo using `https://github.com/ISnackable/Discord-Free-Games-Bot.git`
+2. Clone this repo using `git clone https://github.com/ISnackable/Discord-Free-Games-Bot.git`
 3. Navigate into the directory `cd Discord-Free-Games-Bot`
 4. Create file `.env` and insert your tokens like the text shown below
 ```
