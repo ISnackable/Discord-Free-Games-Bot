@@ -16,6 +16,43 @@ reddit = praw.Reddit(client_id=client_id,
                      client_secret=client_secret,
                      user_agent=user_agent)
 
+def process_link(link):
+    url = re.search(r'(http|ftp|https)://([\w-]+(?:(?:.[\w-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', link)
+    return url.group(0)
+
+
+def process_title(title):
+    p = re.compile(process_link(title))
+    return p.sub('', title)
+    
+
+def retrieve_subreddit(): 
+    for submission in reddit.subreddit('Freegamestuff').new(limit=1):
+        game_title = process_title(submission.title)
+        if submission.selftext != "":
+            game_link = process_link(submission.selftext)
+        else:
+            game_link = process_link(submission.url)
+    return game_title, game_link
+
+async def check_history(title, link):
+    channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
+    previous_messages = []
+    async for message in channel.history(limit=5, oldest_first=False):
+            previous_messages.append(message.content)
+    for messages in previous_messages:
+        if title in messages or link in messages:
+            print("Already posted")
+            return True
+        else:
+            # embed=discord.Embed(title=title, url=link, description='Price:FREE (100% OFF) <:Steam:661129090191065120>')
+            # embed.set_footer(text='Retrieved with FreeGamesBot by Ruii')
+            # await channel.send(embed=embed)
+            inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
+            await inital_message.delete(delay=2)
+            await channel.send('<@98797564966506496> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
+            return False
+
 
 @client.event
 async def on_ready():
@@ -27,57 +64,40 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
     if message.author == client.user:
         return
-    
-    if message.content == '>>latest': # command to retrieve latest free game
-        title, url = retrieve_subreddit()
-        previous_messages = []
-        author_id = message.author.id
+
+    if message.content.startswith('uwuEasterEgg'):
         await message.delete()
+        embed=discord.Embed(title=message.author.name, description='This person is so cool, :O')
+        embed.set_footer(text='uwu')
+        await message.channel.send(embed=embed)
 
-        async for message in channel.history(limit=100):
-            previous_messages.append(message.content)
-
-        if title in ''.join([str(messages) for messages in previous_messages ]):
-            already_posted_message = await channel.send(f"<@{str(author_id)}> The game posted above is already the latest free game.")
-            await already_posted_message.delete(delay=10)
+    elif message.content.startswith('$screenshare'):
+        if message.author.voice is not None:
+            voice_channel = message.author.voice.channel.id
+            await message.channel.send(f"https://www.discordapp.com/channels/{message.guild.id}/{voice_channel}")
         else:
-            inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
-            await inital_message.delete(delay=2)
-            await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(url)) # Change <@&431674916455055361> to whatever role's id you want
-        
+            await message.channel.send(f"Please join a voice channel first")
+            
+    # if message.content.startswith('>>latest'): # command to retrieve latest free game
+    #     await message.delete()
+    #     game_title, game_link = retrieve_subreddit()
+    #     author_id = message.author.id
 
-def retrieve_subreddit(): 
-    for submission in reddit.subreddit('Freegamestuff').hot(limit=5):
-        if 'free' in submission.title.lower():
-            return submission.title, submission.shortlink
+    #     if await check_history(game_title, game_link):
+    #         already_posted_message = await channel.send(f"<@{str(author_id)}> The game posted above is already the latest free game.")
+    #         await already_posted_message.delete(delay=10)
+    #     else:
+    #         pass
+
 
 async def my_background_task():
-        channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
         while True:
-            title, url = retrieve_subreddit()
-            previous_messages = []
-            async for message in channel.history(limit=100):
-                previous_messages.append(message.content)
-
-            if title in ''.join([str(messages) for messages in previous_messages ]):
-                pass
-            else:
-                await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(url)) # Change <@&431674916455055361> to whatever role's id you want
+            game_title, game_link = retrieve_subreddit()
+            await check_history(game_title, game_link)
 
             await asyncio.sleep(1800) # task runs every 1800 seconds / 30 minutes
 
-# if __name__ == "__main__":
-#     client.run(token)
-
-# for submission in reddit.subreddit('Freegamestuff').hot(limit=5):
-#     if 'free' in submission.title.lower():
-#         url = re.findall('^((http|ftp|https):\/\/)?([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?', submission.selftext)
-#         print(url)
-#         break
-
-# # embed = discord.Embed(title='Go to YouTube',
-# #                        url='https://www.youtube.com/',
-# #                        description='New video guys click on the title')
+if __name__ == "__main__":
+    client.run(token)
