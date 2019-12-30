@@ -67,7 +67,7 @@ async def my_background_task():
             else:
                 await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(url)) # Change <@&431674916455055361> to whatever role's id you want
 
-            await asyncio.sleep(43200) # task runs every 43200 seconds / 12 hours
+            await asyncio.sleep(1800) # task runs every 1800 seconds / 30 minutes
 
 # if __name__ == "__main__":
 #     client.run(token)
