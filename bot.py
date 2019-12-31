@@ -15,6 +15,7 @@ client = discord.Client()
 reddit = praw.Reddit(client_id=client_id,
                      client_secret=client_secret,
                      user_agent=user_agent)
+channels_to_update = {}
 
 def process_link(link):
     url = re.search(r'(http|ftp|https)://([\w-]+(?:(?:.[\w-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', link)
@@ -41,19 +42,19 @@ def retrieve_subreddit():
 
 
 async def check_history(title, link):
-    channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
-    previous_messages = []
-    async for message in channel.history(limit=3, oldest_first=False):
-            previous_messages.append(message.content)
-    for messages in previous_messages:
-        if link in messages:
-            # print("Already posted")
-            return True # if the current latest free game matched with the last 3 game post is already posted, return True
-    else:
-        inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
-        await inital_message.delete(delay=2)
-        await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
-        return False
+    for channel in channels_to_update:
+        previous_messages = []
+        async for message in channel.history(limit=3, oldest_first=False):
+                previous_messages.append(message.content)
+        for messages in previous_messages:
+            if link in messages:
+                # print("Already posted")
+                return True # if the current latest free game matched with the last 3 game post is already posted, return True
+        else:
+            inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
+            await inital_message.delete(delay=2)
+            await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
+            return False
 
 
 @client.event
@@ -75,12 +76,40 @@ async def on_message(message):
         embed.set_footer(text='uwu')
         await message.channel.send(embed=embed)
 
+    elif message.content.startswith('$help'):
+        embed=discord.Embed(title="Commands", description="List of commands", color=0x00ffff)
+        embed.add_field(name="$screenshare", value="Share screen in a discord server", inline=False)
+        embed.add_field(name="$activate @role", value="Activate channel to be notified about free games", inline=False)
+        embed.add_field(name="$deactivate", value="Deactivate channel from being notified about free games", inline=False)
+        embed.set_footer(text="Bot made by Ruii")
+        await message.channel.send(embed=embed)
+
     elif message.content.startswith('$screenshare'):
         if message.author.voice is not None:
             voice_channel = message.author.voice.channel.id
             await message.channel.send(f"https://www.discordapp.com/channels/{message.guild.id}/{voice_channel}")
         else:
             await message.channel.send(f"Please join a voice channel first")
+    
+    elif message.content.startswith('$activate'):
+        print(channels_to_update)
+        if not message.channel in channels_to_update:
+            if len(message.role_mentions) == 1:
+                role_to_update = message.role_mentions[0].id
+                await message.channel.send('This channel will now be notified of new free games!')
+                channels_to_update[message.channel] = role_to_update
+            else:
+                await message.channel.send("To activate the channel to recieve notifications for free games, type $activate @role")
+        else:
+            await message.channel.send('This channel is already in the list to receive notifications.')
+
+    elif message.content.startswith('$deactivate'):
+        print(channels_to_update)
+        if not message.channel in channels_to_update:
+            await message.channel.send('This channel has not been activated for free games yet!')
+        else:
+            del channels_to_update[message.channel]
+            await message.channel.send('This channel will now stop receiving notifications.')
             
     # if message.content.startswith('>>latest'): # command to retrieve latest free game
     #     await message.delete()
