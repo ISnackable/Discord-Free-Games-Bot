@@ -26,7 +26,7 @@ def process_link(link):
 
 
 def process_title(title):
-    p = re.compile(process_link(title))
+    p = re.compile(process_link(title)) # Remove link from title if there is any
     return p.sub('', title)
     
 
@@ -43,20 +43,17 @@ def retrieve_subreddit():
 async def check_history(title, link):
     channel = client.get_channel(431676381659791371) # Change 431676381659791371 to whatever channel's id you want
     previous_messages = []
-    async for message in channel.history(limit=5, oldest_first=False):
+    async for message in channel.history(limit=3, oldest_first=False):
             previous_messages.append(message.content)
     for messages in previous_messages:
         if link in messages:
             # print("Already posted")
-            return True
-        else:
-            # embed=discord.Embed(title=title, url=link, description='Price:FREE (100% OFF) <:Steam:661129090191065120>')
-            # embed.set_footer(text='Retrieved with FreeGamesBot by Ruii')
-            # await channel.send(embed=embed)
-            inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
-            await inital_message.delete(delay=2)
-            await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
-            return False
+            return True # if the current latest free game matched with the last 3 game post is already posted, return True
+    else:
+        inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
+        await inital_message.delete(delay=2)
+        await channel.send('<@&431674916455055361> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
+        return False
 
 
 @client.event
