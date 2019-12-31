@@ -48,7 +48,7 @@ async def check_history(title, link):
                 previous_messages.append(message.content)
         for messages in previous_messages:
             if link in messages:
-                # print("Already posted")
+                print("Already posted")
                 return True # if the current latest free game matched with the last 3 game post is already posted, return True
         else:
             inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
@@ -92,7 +92,6 @@ async def on_message(message):
             await message.channel.send(f"Please join a voice channel first")
     
     elif message.content.startswith('$activate'):
-        print(channels_to_update)
         if not message.channel in channels_to_update:
             if len(message.role_mentions) == 1:
                 role_to_update = message.role_mentions[0].id
@@ -104,7 +103,6 @@ async def on_message(message):
             await message.channel.send('This channel is already in the list to receive notifications.')
 
     elif message.content.startswith('$deactivate'):
-        print(channels_to_update)
         if not message.channel in channels_to_update:
             await message.channel.send('This channel has not been activated for free games yet!')
         else:
