@@ -23,5 +23,5 @@ REDDIT_USER_AGENT=<REPLACE WITH REDDIT API NAME>
 
 Eg. DISCORD_TOKEN=ASIDUHIAUWBDUI1I3123AD
 ```
-5. Edit bot.py and replace line 29, 47, 56 & 66 to an appropriate discord channel/role ID 
+5. Edit bot.py and replace line 44 & 55 to an appropriate discord channel/role ID 
 6. That's all, thanks for checking out my bot
