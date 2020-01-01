@@ -54,19 +54,6 @@ async def check_history(title, link, submission_id):
             await inital_message.delete(delay=2)
             await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
             return False
-    # for channel in channels_to_update:
-    #     previous_messages = []
-    #     async for message in channel.history(limit=3, oldest_first=False):
-    #             previous_messages.append(message.content)
-    #     for messages in previous_messages:
-    #         if link in messages:
-    #             print("Already posted")
-    #             return True # if the current latest free game matched with the last 3 game post is already posted, return True
-    #     else:
-    #         inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
-    #         await inital_message.delete(delay=2)
-    #         await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
-    #         return False
 
 
 @client.event
