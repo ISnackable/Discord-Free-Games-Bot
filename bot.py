@@ -16,6 +16,7 @@ reddit = praw.Reddit(client_id=client_id,
                      client_secret=client_secret,
                      user_agent=user_agent)
 channels_to_update = {}
+processed_submission = []
 
 def process_link(link):
     url = re.search(r'(http|ftp|https)://([\w-]+(?:(?:.[\w-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', link)
@@ -33,24 +34,22 @@ def process_title(title):
 
 def retrieve_subreddit(): 
     for submission in reddit.subreddit('Freegamestuff').new(limit=1):
+        submission_id = submission.id
         game_title = process_title(submission.title)
         if submission.selftext != "":
             game_link = process_link(submission.selftext)
         else:
             game_link = process_link(submission.url)
-    return game_title, game_link
+    return game_title, game_link, submission_id
 
 
-async def check_history(title, link):
+async def check_history(title, link, submission_id):
     for channel in channels_to_update:
-        previous_messages = []
-        async for message in channel.history(limit=3, oldest_first=False):
-                previous_messages.append(message.content)
-        for messages in previous_messages:
-            if link in messages:
-                print("Already posted")
-                return True # if the current latest free game matched with the last 3 game post is already posted, return True
+        if submission_id in processed_submission:
+            print("Already posted")
+            return True
         else:
+            processed_submission.append(submission_id)
             inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
             await inital_message.delete(delay=2)
             await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
@@ -123,8 +122,9 @@ async def on_message(message):
 
 async def my_background_task():
         while True:
-            game_title, game_link = retrieve_subreddit()
-            await check_history(game_title, game_link)
+            if len(channels_to_update) != 0:
+                game_title, game_link, submission_id = retrieve_subreddit()
+                await check_history(game_title, game_link, submission_id)
 
             await asyncio.sleep(60) # task runs every 60 seconds
 
