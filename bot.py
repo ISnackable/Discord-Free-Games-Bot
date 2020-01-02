@@ -51,7 +51,10 @@ async def check_history(title, link, submission_id):
         else:
             inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
             await inital_message.delete(delay=2)
-            await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
+            if channels_to_update[channel] != None:
+                await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link))
+            else:
+                await channel.send(str(title) + "\n" + str(link))
     processed_submission.append(submission_id)
     return False
 
@@ -71,14 +74,15 @@ async def on_message(message):
 
     if message.content.startswith('uwuEasterEgg'):
         await message.delete()
-        embed=discord.Embed(title=message.author.name, description='This person is so cool, :O')
+        embed=discord.Embed(title=message.author.name, description='Thiws pewson iws so coow, uwu.')
         embed.set_footer(text='uwu')
         await message.channel.send(embed=embed)
 
     elif message.content.startswith('$help'):
         embed=discord.Embed(title="Commands", description="List of commands", color=0x00ffff)
         embed.add_field(name="$screenshare", value="Share screen in a discord server", inline=False)
-        embed.add_field(name="$activate @role", value="Activate channel to be notified about free games", inline=False)
+        embed.add_field(name="$activate", value="Activate channel to be notified about free games", inline=False)
+        embed.add_field(name="$activate @role", value="Activate channel & ping the role to be notified about free games", inline=False)
         embed.add_field(name="$deactivate", value="Deactivate channel from being notified about free games", inline=False)
         embed.set_footer(text="Bot made by Ruii")
         await message.channel.send(embed=embed)
@@ -92,12 +96,15 @@ async def on_message(message):
     
     elif message.content.startswith('$activate'):
         if not message.channel in channels_to_update:
-            if len(message.role_mentions) == 1:
-                role_to_update = message.role_mentions[0].id
+            if len(message.role_mentions) == 0:
+                channels_to_update[message.channel] = None
                 await message.channel.send('This channel will now be notified of new free games!')
+            elif len(message.role_mentions) == 1: 
+                role_to_update = message.role_mentions[0].id
                 channels_to_update[message.channel] = role_to_update
+                await message.channel.send(f'This channel and @{message.role_mentions[0].name} will now be notified of new free games!')
             else:
-                await message.channel.send("To activate the channel to recieve notifications for free games, type $activate @role")
+                await message.channel.send("You may only add 1 role to be mentioned, refer to the commands with '$help'.")
         else:
             await message.channel.send('This channel is already in the list to receive notifications.')
 
