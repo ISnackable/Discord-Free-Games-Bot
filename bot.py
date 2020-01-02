@@ -46,14 +46,14 @@ def retrieve_subreddit():
 async def check_history(title, link, submission_id):
     for channel in channels_to_update:
         if submission_id in processed_submission:
-            print("Already posted")
+            # print("Already posted")
             return True
         else:
-            processed_submission.append(submission_id)
             inital_message = await channel.send('Retrieving latest post from r/Freegamestuff')
             await inital_message.delete(delay=2)
             await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link)) # Change <@&431674916455055361> to whatever role's id you want
-            return False
+    processed_submission.append(submission_id)
+    return False
 
 
 @client.event
