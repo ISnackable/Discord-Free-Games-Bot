@@ -73,9 +73,17 @@ async def post_freegame(channel, title, link):
 @client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
-    activity = discord.Activity(name='for free games!', type=discord.ActivityType.watching)
+    activity = discord.Activity(name='for free games! | $help', type=discord.ActivityType.watching)
     await client.change_presence(activity=activity)
     client.loop.create_task(my_background_task())
+
+
+@client.event
+async def on_guild_join(guild):
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            await channel.send("Hey there! Thank you for inviting me to your server. You can see my commands by typing '$help'")
+        break
 
 
 @client.event
