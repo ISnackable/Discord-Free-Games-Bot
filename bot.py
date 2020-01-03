@@ -19,7 +19,7 @@ channels_to_update = {}
 processed_submission = []
 
 def check_owner(message):
-    if message.author.guild_permissions >= message.guild.owner.guild_permissions:
+    if message.author.guild_permissions >= message.guild.owner.guild_permissions or message.author == client.appinfo.owner:
         return True
     else:
         return False
@@ -75,6 +75,8 @@ async def on_ready():
     print(f'{client.user} has connected to Discord!')
     activity = discord.Activity(name='for free games! | $help', type=discord.ActivityType.watching)
     await client.change_presence(activity=activity)
+    if not hasattr(client, 'appinfo'):
+        client.appinfo = await client.application_info()
     client.loop.create_task(my_background_task())
 
 
