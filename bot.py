@@ -53,8 +53,8 @@ def retrieve_subreddit():
 async def check_history(title, link, submission_id):
     for channel in channels_to_update:
         if submission_id in processed_submission:
-            # print("Already posted")
-            break
+            # print("Already posted", processed_submission)
+            return
         else:
             await post_freegame(channel, title, link)
     processed_submission.append(submission_id)
