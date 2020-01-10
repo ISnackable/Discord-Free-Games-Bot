@@ -30,4 +30,5 @@ REDDIT_USER_AGENT=<REPLACE WITH REDDIT API NAME>
 
 // Eg. DISCORD_TOKEN=ASIDUHIAUWBDUI1I3123AD
 ```
+6. Run the python file, 'python3 bot.py'
 7. That's all, thanks for checking out my bot

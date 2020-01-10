@@ -18,6 +18,8 @@ reddit = praw.Reddit(client_id=client_id,
 channels_to_update = {}
 processed_submission = []
 
+
+# Checks if the message author is either the owner of the guild or the owner of the bot
 def check_owner(message):
     if message.author.guild_permissions >= message.guild.owner.guild_permissions or message.author == client.appinfo.owner:
         return True
@@ -25,6 +27,7 @@ def check_owner(message):
         return False
 
 
+# Process link and returns it if there is a link
 def process_link(link):
     url = re.search(r'(http|ftp|https)://([\w-]+(?:(?:.[\w-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', link)
     
@@ -34,11 +37,13 @@ def process_link(link):
         return ""
 
 
+# Process title by removing a link if there is one
 def process_title(title):
     p = re.compile(process_link(title)) # Remove link from title if there is any
     return p.sub('', title)
     
 
+# Retreive r/Freegamestuff latest post with Praw API
 def retrieve_subreddit(): 
     for submission in reddit.subreddit('Freegamestuff').new(limit=1):
         submission_id = submission.id
@@ -50,6 +55,7 @@ def retrieve_subreddit():
     return game_title, game_link, submission_id
 
 
+# Check if bot has already posted
 async def check_history(title, link, submission_id):
     for channel in channels_to_update:
         if submission_id in processed_submission:
@@ -60,6 +66,7 @@ async def check_history(title, link, submission_id):
     processed_submission.append(submission_id)
 
 
+# Send free game notification to discord guild's channel(s)
 async def post_freegame(channel, title, link):
     if channels_to_update[channel] != None:
         await channel.send('<@&'+str(channels_to_update[channel])+'> ' + str(title) + "\n" + str(link))
@@ -93,19 +100,12 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('uwuEasterEgg'):
-        await message.delete()
-        embed=discord.Embed(title=message.author.name, description='Thiws pewson iws so coow, uwu.')
-        embed.set_footer(text='uwu')
-        await message.channel.send(embed=embed)
-
-    elif message.content.startswith('$help'):
-        embed=discord.Embed(title="Commands", description="List of commands", color=0x00ffff)
-        embed.add_field(name="$screenshare", value="Share screen in a discord server", inline=False)
-        embed.add_field(name="$activate", value="Activate channel to be notified about free games", inline=False)
-        embed.add_field(name="$activate @role", value="Activate channel & role to be notified about free games", inline=False)
-        embed.add_field(name="$deactivate", value="Deactivate channel from being notified about free games", inline=False)
-        embed.set_footer(text="Bot made by Ruii")
+    if message.content.startswith('$help'):
+        embed=discord.Embed(title="FreeGamesBot Help", description="Available commands", color=0xff0000)
+        embed.set_thumbnail(url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.freeiconspng.com%2Fuploads%2Fgames-icon-token-light-8.png&f=1&nofb=1")
+        embed.add_field(name="Commands", value="```\n$help - Shows all available commands.\n\n$screenshare - Enable discord screensharing in server.\n\n$github - Send the bot's github repository ```", inline=False)
+        embed.add_field(name="Owner commands", value="```\n$activate - Activate channel to be notified of free games\n\n$activate @role - Activate channel and role to be notified of free games\n\n$deactivate - Deactivate channel from being notified of free games```", inline=False)
+        embed.set_footer(text="Bot made by Ruii#1066")
         await message.channel.send(embed=embed)
 
     elif message.content.startswith('$screenshare'):
@@ -114,6 +114,13 @@ async def on_message(message):
             await message.channel.send(f"https://www.discordapp.com/channels/{message.guild.id}/{voice_channel}")
         else:
             await message.channel.send(f"Please join a voice channel first")
+
+    elif message.content.startswith('$github'):
+        embed=discord.Embed(title="Discord Free Games Bot", url="https://github.com/ISnackable/Discord-Free-Games-Bot", description="A bot that will retrieve the latest post from subreddit r/Freegamestuff and post on the assigned discord text channel", color=0xff0000)
+        embed.set_author(name="ISnackable", url="https://github.com/ISnackable", icon_url="https://avatars2.githubusercontent.com/u/52971804?s=460&v=4")
+        embed.set_thumbnail(url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.freeiconspng.com%2Fuploads%2Fgames-icon-token-light-8.png&f=1&nofb=1")
+        embed.set_footer(text="Bot made by Ruii#1066")
+        await message.channel.send(embed=embed)
 
     elif message.content.startswith('$activate'):
         if check_owner(message):
