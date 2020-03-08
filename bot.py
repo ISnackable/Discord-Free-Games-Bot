@@ -29,10 +29,10 @@ def check_owner(message):
 
 # Process link and returns it if there is a link
 def process_link(link):
-    url = re.search(r'(http|ftp|https)://([\w-]+(?:(?:.[\w-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', link)
+    url = re.findall(r'\((http.*?)\)', link)
     
-    if url is not None:
-        return url.group(0)
+    if len(url) > 0:
+        return '\n'.join(url)
     else:
         return ""
 
@@ -73,7 +73,7 @@ async def post_freegame(channel, title, link):
     else:
         await channel.send(str(title) + "\n" + str(link))
 
-    if len(processed_submission) >= 20:
+    if len(processed_submission) >= 3:
         processed_submission.clear()
 
 
