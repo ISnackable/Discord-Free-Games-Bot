@@ -145,13 +145,13 @@ async def on_message(message):
         else:
             await message.channel.send(f'Sorry <@{str(message.author.id)}>, you do not have permission to use $deactivate.')
 
-    elif message.content.startswith('$latest'): # Testing command
-        await message.delete()
-        if check_owner(message):
-            game_title, game_link, submission_id = await retrieve_subreddit()
-            await check_history(game_title, game_link, submission_id)
-        else:
-            await message.channel.send(f'Sorry <@{str(message.author.id)}>, you do not have permission to use $deactivate.')
+    # elif message.content.startswith('$latest'): # Testing command
+    #     await message.delete()
+    #     if check_owner(message):
+    #         game_title, game_link, submission_id = await retrieve_subreddit()
+    #         await check_history(game_title, game_link, submission_id)
+    #     else:
+    #         await message.channel.send(f'Sorry <@{str(message.author.id)}>, you do not have permission to use $deactivate.')
 
 
 async def my_background_task():
