@@ -1,20 +1,14 @@
-import os
+import os, sys
 import re
+import json
 import discord
-from dotenv import load_dotenv
-import praw
-import asyncio
+import asyncio, aiohttp
 
-load_dotenv()
-token = os.getenv('DISCORD_TOKEN')
-client_id = os.getenv('REDDIT_ID')
-client_secret = os.getenv('REDDIT_SECRET')
-user_agent = os.getenv('REDDIT_USER_AGENT')
+if len(sys.argv) < 2:
+    print('Error: missing token')
+    sys.exit()
 
 client = discord.Client()
-reddit = praw.Reddit(client_id=client_id,
-                     client_secret=client_secret,
-                     user_agent=user_agent)
 channels_to_update = {}
 processed_submission = []
 
@@ -43,16 +37,18 @@ def process_title(title):
     return p.sub('', title)
     
 
-# Retreive r/Freegamestuff latest post with Praw API
-def retrieve_subreddit(): 
-    for submission in reddit.subreddit('Freegamestuff').new(limit=1):
-        submission_id = submission.id
-        game_title = process_title(submission.title)
-        if submission.selftext != "":
-            game_link = process_link(submission.selftext)
-        else:
-            game_link = process_link(submission.url)
-    return game_title, game_link, submission_id
+# Retrieve r/Freegamestuff latest post with subreddit's json
+async def retrieve_subreddit():
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://www.reddit.com/r/Freegamestuff/new/.json?raw_json=1&limit=1') as r:
+            if r.status == 200:
+                js = await r.json()
+                    
+                submission_id = js['data']['children'][0]['data']['id']
+                game_title = process_title(js['data']['children'][0]['data']['title'])
+                game_link = process_link(js['data']['children'][0]['data']['selftext']) if js['data']['children'][0]['data']['selftext'] != "" else js['data']['children'][0]['data']['url']
+                
+                return game_title, game_link, submission_id
 
 
 # Check if bot has already posted
@@ -103,8 +99,8 @@ async def on_message(message):
     if message.content.startswith('$help'):
         embed=discord.Embed(title="FreeGamesBot Help", description="Available commands", color=0xff0000)
         embed.set_thumbnail(url="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.freeiconspng.com%2Fuploads%2Fgames-icon-token-light-8.png&f=1&nofb=1")
-        embed.add_field(name="Commands", value="```\n$help - Shows all available commands.\n\n$screenshare - Enable discord screensharing in server.\n\n$github - Send the bot's github repository ```", inline=False)
-        embed.add_field(name="Owner commands", value="```\n$activate - Activate channel to be notified of free games\n\n$activate @role - Activate channel and role to be notified of free games\n\n$deactivate - Deactivate channel from being notified of free games```", inline=False)
+        embed.add_field(name="Commands", value="```bash\n$help - Shows all available commands.\n\n$screenshare - Enable discord screensharing inside a server.\n\n$github - Send the source code of the bot ```", inline=False)
+        embed.add_field(name="Owner commands", value="```bash\n$activate - Activate channel to be notified of free games\n\n$activate '@role' - Activate channel and role to be notified of free games\n\n$deactivate - Deactivate channel from being notified of free games```", inline=False)
         embed.set_footer(text="Bot made by Ruii#1066")
         await message.channel.send(embed=embed)
 
@@ -149,22 +145,22 @@ async def on_message(message):
         else:
             await message.channel.send(f'Sorry <@{str(message.author.id)}>, you do not have permission to use $deactivate.')
 
-    # elif message.content.startswith('$latest'): # Testing command
-    #     await message.delete()
-    #     if check_owner(message):
-    #         game_title, game_link, submission_id = retrieve_subreddit()
-    #         await check_history(game_title, game_link, submission_id)
-    #     else:
-    #         await message.channel.send(f'Sorry <@{str(message.author.id)}>, you do not have permission to use $deactivate.')
+    elif message.content.startswith('$latest'): # Testing command
+        await message.delete()
+        if check_owner(message):
+            game_title, game_link, submission_id = await retrieve_subreddit()
+            await check_history(game_title, game_link, submission_id)
+        else:
+            await message.channel.send(f'Sorry <@{str(message.author.id)}>, you do not have permission to use $deactivate.')
 
 
 async def my_background_task():
         while True:
             if len(channels_to_update) != 0:
-                game_title, game_link, submission_id = retrieve_subreddit()
+                game_title, game_link, submission_id = await retrieve_subreddit()
                 await check_history(game_title, game_link, submission_id)
 
             await asyncio.sleep(60) # task runs every 60 seconds
 
 if __name__ == "__main__":
-    client.run(token)
+    client.run(sys.argv[1])
