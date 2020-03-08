@@ -5,7 +5,7 @@ By [ISnackable](https://github.com/ISnackable)
 
 
 ## About The Project
-I made this bot to help me automatic posting of free games that is going for a limited time on my discord server.
+I made this bot to help me automatic posting of games that are going free for a limited time on my discord server.
 
 ## Dependencies
 The following tools should be installed before starting:
@@ -27,7 +27,7 @@ python -m pip install --upgrade pip
 
 ### Installation
 
-1. Install OpenPyXL module
+1. Install Discord module
 ```sh
 pip install -U discord.py
 ```
