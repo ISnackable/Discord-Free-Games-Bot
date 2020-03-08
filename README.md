@@ -3,32 +3,44 @@ A bot that will retrieve the latest post from subreddit r/Freegamestuff and post
 
 By [ISnackable](https://github.com/ISnackable)
 
+
+## About The Project
+I made this bot to help me automatic posting of free games that is going for a limited time on my discord server.
+
 ## Dependencies
 The following tools should be installed before starting:
 * [Python](https://www.python.org/)
 * [Discord](https://discordapp.com/developers/docs/intro)
-* [Dotenv](https://pypi.org/project/python-dotenv/#installation)
-* [Praw](https://praw.readthedocs.io/en/latest/getting_started/installation.html)
 
-## How to setup this project
+## Getting Started
+
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
+
+### Prerequisites
+
+You should update pip to the latest version to improve the functionality or be obligatory for security purposes.
+* pip
+```sh
+python -m pip install --upgrade pip
+```
+
+### Installation
+
+1. Install OpenPyXL module
+```sh
+pip install -U discord.py
+```
+
+### Usage
+To start trying out the discord bot, follow the steps below.
 
 1. Make sure you have all of the dependencies installed
 2. Clone this repo using `git clone https://github.com/ISnackable/Discord-Free-Games-Bot.git`
 3. Navigate into the directory `cd Discord-Free-Games-Bot`
-4. Install the dependencies
-```
-pip install -U discord.py
-pip install -U python-dotenv
-pip install praw
-```
-5. Create file `.env` and insert your tokens like the text shown below
-```
-DISCORD_TOKEN=<REPLACE WITH DISCORD DEVELOPER TOKEN> 
-REDDIT_ID=<REPLACE WITH REDDIT API ID>
-REDDIT_SECRET=<REPLACE WITH REDDIT API SECRET TOKEN>
-REDDIT_USER_AGENT=<REPLACE WITH REDDIT API NAME>
+4. Run the python file, ```python3 bot.py `DISCORDBOT_TOKEN` ```
+5. That's all, thanks for checking out my bot
 
-// Eg. DISCORD_TOKEN=ASIDUHIAUWBDUI1I3123AD
-```
-6. Run the python file, `python3 bot.py`
-7. That's all, thanks for checking out my bot
+## License
+GNU GENERAL PUBLIC LICENSE
+Refer to `LICENSE`
